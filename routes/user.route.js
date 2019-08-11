@@ -16,7 +16,7 @@ var details={
 var user=new User(details)
 user.save().then(response=>console.log(response)).catch(error=>response.status(400).json("Error : "+error))
 });
-router.route('/getdetails').post((request,response)=>{
+router.route('/login').post((request,response)=>{
     User.findOne(
         {$and:
         [ {'username': request.body.userName},
