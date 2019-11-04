@@ -1,4 +1,4 @@
-var mongoose=require('mongoose')
+var mongoose=require('mongoose');
 
 var userSchema=new mongoose.Schema({
     
@@ -30,7 +30,7 @@ var userSchema=new mongoose.Schema({
         type:String
     }
 
-})
+});
 
-var userschema=mongoose.model('User',userSchema)
-module.exports=userschema
+var userschema=mongoose.model('User',userSchema);
+module.exports=userschema;

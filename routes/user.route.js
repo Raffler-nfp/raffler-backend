@@ -1,20 +1,20 @@
-var router=require('express').Router()
+var router=require('express').Router();
 //var mongoose=require('mongoose')
-var User=require('../model/user.model')
+var User=require('../model/user.model');
 router.route('/signup').post((request,response)=>{
-var details={
-    name:request.body.name,
-    username:request.body.username,
-    password:request.body.password,
-    confirmPassword:request.body.confirmPassword,
-    gameUsername:request.body.gameUsername,
-    gamingPlatform:request.body.gamingPlatform,
-    multipliers:request.body.multipliers,
-    rafflesHistory:request.body.rafflesHistory,
-    rafflesCount:request.body.rafflesCount
-}
-var user=new User(details)
-user.save().then(response=>console.log(response)).catch(error=>response.status(400).json("Error : "+error))
+    var details={
+        name:request.body.name,
+        username:request.body.username,
+        password:request.body.password,
+        confirmPassword:request.body.confirmPassword,
+        gameUsername:request.body.gameUsername,
+        gamingPlatform:request.body.gamingPlatform,
+        multipliers:request.body.multipliers,
+        rafflesHistory:request.body.rafflesHistory,
+        rafflesCount:request.body.rafflesCount
+    };
+    var user=new User(details);
+    user.save().then(response=>console.log(response)).catch(error=>response.status(400).json("Error : "+error));
 });
 router.route('/login').post((request,response)=>{
     User.findOne(
@@ -46,7 +46,7 @@ router.route('/login').post((request,response)=>{
                 };
                 response.json(data);
             }
-        }).catch(error=>response.status(400).json("Error : "+error))
+        }).catch(error=>response.status(400).json("Error : "+error));
     // User.find({username:`${request.username}`}).then()
 });
-module.exports=router
+module.exports=router;
