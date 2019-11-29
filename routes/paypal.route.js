@@ -3,14 +3,13 @@ var router=require('express').Router();
 var request = require('request');
 var Payments=require('../model/payment.model');
 
-
-var CLIENT;
-var SECRET;
-var PAYPAL_API;
-var DOMAIN;
+var CLIENT     = process.env.PP_CLIENT;
+var SECRET     = process.env.PP_SECRET;
+var PAYPAL_API = process.env.DEBUG? "https://api.sandbox.paypal.com" : "https://api.paypal.com";
+var DOMAIN     = process.env.DOMAIN;
 
 router.get("/paypal/make/:paymentID", (req, res) => {
-    Payments.find({_id: req.params['paymentID']}, (error, item) => {
+    Payments.findById({id: req.params['paymentID']}, (error, item) => {
 
         if(error){
             res.status(500).send({ error: "payment-pay-pp", data: error });
@@ -31,54 +30,54 @@ router.get("/paypal/make/:paymentID", (req, res) => {
             },
             body:
             {
-              intent: 'sale',
-              payer:
-              {
-                payment_method: 'paypal'
-              },
-              transactions: [
-              {
-                amount:
+                intent: 'sale',
+                payer:
                 {
-                  total: item[0].amount,
-                  currency: 'AUD'
+                    payment_method: 'paypal'
+                },
+                transactions: [
+                {
+                    amount:
+                    {
+                        total: item[0].amount,
+                        currency: 'AUD'
+                    }
+                }],
+                redirect_urls:
+                {
+                    return_url: 'https://' + DOMAIN + '/paypal/callback/' + req.params['paymentID'],
+                    cancel_url: 'https://' + DOMAIN + '/paypal/camcel/' + req.params['paymentID']
                 }
-              }],
-              redirect_urls:
-              {
-                return_url: 'https://' + DOMAIN + '/paypal/callback/' + req.params['paymentID'],
-                cancel_url: 'https://' + DOMAIN + '/paypal/camcel/' + req.params['paymentID']
-              }
             },
             json: true
-        }, (err, resp) => {
-            if(err){
-                return res.status(500).send({ error: "payment-pay-pp-1", data: error });
-            }
+            }, 
+            (err, resp) => {
+                if(err){
+                    return res.status(500).send({ error: "payment-pay-pp-1", data: error });
+                }
               
-            res.json(
-            {
-                id: response.body.id
-            });
+                res.json(
+                {
+                    id: response.body.id
+                });
         });
     });
 });
 
 router.post("/paypal/callback/:paymentID", (req, res) => {
 
-    Payments.find({_id: req.params['paymentID']}, (error, item) => {
+    Payments.findById({id: req.params['paymentID']}, (error, item) => {
 
         if(error){
             res.status(500).send({ error: "payment-callback-pp", data: error });
             return;
         }
 
-        if(item[0] == null)
+        if(item == null)
         {
             res.status(404).send({ error: "payment-callback-pp", data: "Payment not found" });
             return;
         }
-
 
         var paymentID = req.body.paymentID;
         var payerID = req.body.payerID;
@@ -100,12 +99,11 @@ router.post("/paypal/callback/:paymentID", (req, res) => {
                 }]
             },
             json: true
-            },
-            (err, response) => {
+            }, (err, response) => {
                 if (err) return res.status(500).send({ error: "payment-callback-pp", data: err });
               
-                item[0].transID = paymentID;
-                item[0].save();
+                item.transID = paymentID;
+                item.save();
                 
                 res.json({
                     status: 'success',

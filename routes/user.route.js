@@ -2,6 +2,7 @@ var router=require('express').Router();
 //var mongoose=require('mongoose')
 var User=require('../model/user.model');
 router.route('/signup').post((request,response)=>{
+    
     var details={
         name:request.body.name,
         username:request.body.username,
